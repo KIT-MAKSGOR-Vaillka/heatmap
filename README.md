@@ -1,49 +1,112 @@
-# Adaptable heatmap builder
+# Построитель тепловых карт для H2DCFDA / lnDEF
 
-`heatmap.py` builds heatmaps for lnDEF-like experiment tables without editing Python code.
-It generates heatmaps from H2DCFDA-style analysis and supports different doses, concentrations, sample names, cell lines, pH values and material families through a JSON config or the Colab notebook.
+Этот проект строит тепловые карты из таблиц экспериментов без правки Python-кода.
+Основной сценарий - Excel-файлы, где каждая вкладка или файл соответствует одному pH, а внутри идут дозы, образцы, среднее значение, SD и N.
 
-## Quick start
+Скрипт также умеет читать CSV/TSV, если данные уже подготовлены в длинном или широком формате.
 
-Run the current GdF3/GdEuF3/BiCe example:
+## Быстрый запуск
+
+Запустить текущий пример GdF3/GdEuF3/BiCe:
 
 ```bash
 python heatmap.py
 ```
 
-Run with an editable config:
+Запустить с редактируемым конфигом:
 
 ```bash
 python heatmap.py --config heatmap_config_example.json
 ```
 
-Create a fresh config template:
+Запустить Excel-first пример:
+
+```bash
+python heatmap.py --config excel_config_example.json
+```
+
+Посмотреть, как скрипт понял таблицу, до построения графиков:
+
+```bash
+python heatmap.py --config excel_config_example.json --preview
+```
+
+Создать новый шаблон конфига:
 
 ```bash
 python heatmap.py --write-example-config my_heatmap_config.json
 ```
 
-Preview the normalized dataset before plotting:
+## Как работать в Google Colab
 
-```bash
-python heatmap.py --config my_heatmap_config.json --preview
+1. Откройте `heatmap_colab.ipynb` в Google Colab.
+2. Загрузите в Colab:
+   - `heatmap.py`
+   - ваши Excel/CSV файлы с экспериментами
+   - при необходимости `heatmap_config_example.json` или свой JSON-конфиг
+3. В блоке настроек выберите формат данных.
+4. Укажите имена файлов, pH, подписи осей и правила группировки.
+5. Запустите ячейку построения графиков.
+6. Скачайте PNG или ZIP с результатами.
+
+## Главный формат данных: Excel
+
+Для Excel используйте формат `triplet_excel`.
+
+Ожидаемая структура:
+
+| Dose, Gy | BiCe 5% (0.005) | BiCe 5% (0.005) | BiCe 5% (0.005) | BiCe20% (0.025) | BiCe20% (0.025) | BiCe20% (0.025) |
+| --- | --- | --- | --- | --- | --- | --- |
+| 3 | mean lnDEF | SD | N | mean lnDEF | SD | N |
+| 6 | mean lnDEF | SD | N | mean lnDEF | SD | N |
+| 9 | mean lnDEF | SD | N | mean lnDEF | SD | N |
+
+Правила:
+
+- Первый столбец - доза.
+- Дальше для каждого образца идут 3 столбца: `mean`, `SD`, `N`.
+- Скрипт берет только первый столбец из каждой тройки, то есть `mean`.
+- Концентрация должна быть в названии образца в скобках: `BiCe 5% (0.005)`.
+- pH задается в конфиге отдельно, потому что обычно один Excel-файл соответствует одному pH.
+
+Минимальный Excel-конфиг:
+
+```json
+{
+  "sources": [
+    {
+      "path": "experiment_pH_6_5.xlsx",
+      "format": "triplet_excel",
+      "ph": 6.5
+    },
+    {
+      "path": "experiment_pH_7_4.xlsx",
+      "format": "triplet_excel",
+      "ph": 7.4
+    }
+  ],
+  "family_rules": [
+    {"contains": "BiCe", "family": "BiCe"},
+    {"contains": "GdEu", "family": "GdF3 / GdEuF3"},
+    {"contains": "GdF3", "family": "GdF3 / GdEuF3"}
+  ],
+  "default_family": "Other",
+  "plot": {
+    "output_dir": "heatmap_outputs",
+    "dose_label": "Dose, Gy",
+    "concentration_label": "Conc, mg/mL",
+    "panel_label": "pH",
+    "center": 0,
+    "annotate": true
+  }
+}
 ```
 
-## Colab workflow
+## Другие поддерживаемые форматы
 
-Open `heatmap_colab.ipynb` in Google Colab, then upload:
+### Длинная таблица
 
-- `heatmap.py`
-- your CSV/XLSX experiment files
-- optional `heatmap_config_example.json` or your edited JSON config
-
-The notebook has form fields for common cases, so users can change file names, pH values, grouping rules, labels and output names without touching the plotting code.
-
-## Supported input formats
-
-### 1. Long/tidy table
-
-One row per measurement:
+Одна строка - одно измерение:
 
 ```csv
 Material,Family,pH,Conc_mg_mL,Dose_Gy,lnDEF
@@ -51,33 +114,330 @@ GdF3,GdF3 / GdEuF3,6.5,0.01,3,0.18
 GdF3,GdF3 / GdEuF3,6.5,0.05,3,0.53
 ```
 
-Common aliases such as `sample`, `concentration`, `dose`, `value` and `mean` are detected automatically.
+Формат в конфиге:
 
-### 2. Wide dose table
+```json
+{"path": "data.csv", "format": "long"}
+```
 
-One row per material/concentration/pH, with doses as columns:
+### Широкая таблица с дозами в колонках
+
+Одна строка - материал, pH и концентрация; дозы записаны отдельными колонками:
 
 ```csv
 Material,pH,Conc_mg_mL,3_Gy,6_Gy,9_Gy
 GdF3,6.5,0.01,0.18,-0.22,-0.55
 ```
 
-### 3. Excel triplet table
+Формат в конфиге:
 
-The current Excel layout is supported:
+```json
+{"path": "data.csv", "format": "wide_dose"}
+```
 
-- first column: dose
-- then repeated groups of 3 columns: mean, SD, N
-- concentration is written in the sample header, for example `BiCe 5% (0.005)`
+## Поля конфигурации
 
-For this format the config must provide `ph`, because each file usually represents one pH.
+JSON не поддерживает комментарии, поэтому пояснения вынесены сюда. В самом `.json` оставляйте только валидные поля и значения.
 
-## Config fields that matter most
+### `sources`
 
-- `sources`: list of input files and formats.
-- `family_rules`: maps sample names to plot groups, for example `"contains": "BiCe"`.
-- `include_families` / `exclude_families`: keeps one source from mixing unwanted groups.
-- `plot.output_dir`: where PNG files are saved.
-- `plot.group_titles`: nice titles for plot groups.
-- `plot.material_order`: custom order for rows in each plot group.
-- `plot.panel_column`: default is `pH`; can be changed to `cell_line`, `condition` or another metadata column if the table contains it.
+Список входных файлов. Каждый объект в списке описывает один файл.
+
+Зачем нужно: позволяет собрать одну тепловую карту из нескольких Excel/CSV файлов, например pH 6.5 и pH 7.4.
+
+Пример:
+
+```json
+"sources": [
+  {"path": "experiment_pH_6_5.xlsx", "format": "triplet_excel", "ph": 6.5},
+  {"path": "experiment_pH_7_4.xlsx", "format": "triplet_excel", "ph": 7.4}
+]
+```
+
+### `path`
+
+Имя файла с данными.
+
+Зачем нужно: скрипт должен знать, какой Excel/CSV открыть.
+
+Важно: имя должно совпадать с файлом в папке проекта или в Colab runtime.
+
+### `format`
+
+Формат таблицы.
+
+Допустимые значения:
+
+- `triplet_excel` - основной Excel-формат: доза, затем тройки `mean / SD / N`.
+- `wide_dose` - CSV/Excel, где дозы находятся в отдельных колонках `3_Gy`, `6_Gy`, `9_Gy`.
+- `long` - одна строка на одно измерение.
+- `auto` - скрипт попробует угадать формат сам.
+
+Зачем нужно: разные таблицы хранят данные по-разному, и скрипту надо выбрать правильный способ чтения.
+
+### `ph`
+
+pH для конкретного файла.
+
+Зачем нужно: в Excel-формате pH обычно не записан в таблице, а задан названием файла или экспериментом. Скрипт добавляет это значение ко всем строкам из файла.
+
+Пример:
+
+```json
+{"path": "Protons BiCe GdEuF3 6_5.xlsx", "format": "triplet_excel", "ph": 6.5}
+```
+
+### `sheet_name`
+
+Имя или номер листа Excel.
+
+Зачем нужно: если данные лежат не на первом листе, можно указать нужный лист.
+
+Пример:
+
+```json
+{"path": "experiment.xlsx", "format": "triplet_excel", "ph": 6.5, "sheet_name": "Sheet1"}
+```
+
+Если поле не указано, читается первый лист.
+
+### `family`
+
+Принудительно задает группу для всех образцов из файла.
+
+Зачем нужно: удобно для ручных таблиц, где весь файл относится к одной группе, например `GdF3 / GdEuF3`.
+
+Пример:
+
+```json
+{"path": "gdf3_gdeuf3_manual.csv", "format": "wide_dose", "family": "GdF3 / GdEuF3"}
+```
+
+### `include_families`
+
+Оставляет из файла только указанные группы.
+
+Зачем нужно: если Excel содержит несколько семейств образцов, но из этого файла нужно взять только часть.
+
+В текущем примере Excel содержит и BiCe, и GdEu, но Gd/GdEu берутся из ручной CSV. Поэтому Excel-источники ограничены так:
+
+```json
+"include_families": ["BiCe"]
+```
+
+### `exclude_families`
+
+Исключает указанные группы из файла.
+
+Зачем нужно: обратная настройка к `include_families`, если проще сказать, что нужно убрать.
+
+Пример:
+
+```json
+"exclude_families": ["Control", "Bad batch"]
+```
+
+### `family_rules`
+
+Правила, которые раскладывают образцы по группам на основании названия.
+
+Зачем нужно: отдельная картинка строится для каждой группы. Например, все образцы с `BiCe` попадают в группу `BiCe`.
+
+Пример:
+
+```json
+"family_rules": [
+  {"contains": "BiCe", "family": "BiCe"},
+  {"contains": "GdEu", "family": "GdF3 / GdEuF3"},
+  {"contains": "GdF3", "family": "GdF3 / GdEuF3"}
+]
+```
+
+Варианты правил:
+
+- `contains` - название образца содержит текст.
+- `startswith` - название образца начинается с текста.
+- `regex` - регулярное выражение для сложных случаев.
+
+### `default_family`
+
+Группа по умолчанию.
+
+Зачем нужно: если образец не подошел ни под одно правило из `family_rules`, он попадет сюда.
+
+Пример:
+
+```json
+"default_family": "Other"
+```
+
+### `plot`
+
+Блок настроек графика.
+
+Зачем нужно: управляет подписями, цветами, порядком строк и именами выходных PNG.
+
+### `plot.output_dir`
+
+Папка для готовых PNG.
+
+Пример:
+
+```json
+"output_dir": "heatmap_outputs"
+```
+
+### `plot.value_label`
+
+Подпись цветовой шкалы.
+
+Зачем нужно: показывает, какая величина закодирована цветом.
+
+Пример:
+
+```json
+"value_label": "$\\ln(\\mathrm{DEF}_{\\mathrm{ROS}})$"
+```
+
+### `plot.colorbar_note`
+
+Дополнительная подпись под цветовой шкалой.
+
+Зачем нужно: можно пояснить биологический смысл цвета.
+
+Пример:
+
+```json
+"colorbar_note": "blue: ROS decrease vs control; red: ROS increase vs control"
+```
+
+### `plot.dose_label`
+
+Подпись оси X.
+
+Пример:
+
+```json
+"dose_label": "Dose, Gy"
+```
+
+### `plot.concentration_label`
+
+Подпись оси Y.
+
+Пример:
+
+```json
+"concentration_label": "Conc, mg/mL"
+```
+
+### `plot.panel_label`
+
+Подпись панелей сверху.
+
+Зачем нужно: по умолчанию панели разделяются по `pH`, поэтому подпись будет `pH 6.5`, `pH 7.4`.
+
+Пример:
+
+```json
+"panel_label": "pH"
+```
+
+### `plot.cmap`
+
+Цветовая палитра.
+
+Примеры:
+
+- `bwr` - синий-белый-красный.
+- `coolwarm` - мягкая сине-красная палитра.
+- `RdBu_r` - красно-синяя палитра.
+- `viridis` - последовательная палитра без центра в нуле.
+
+### `plot.center`
+
+Значение, которое будет центром цветовой шкалы.
+
+Зачем нужно: для lnDEF обычно удобно ставить `0`, чтобы отрицательные значения были синими, положительные красными.
+
+Пример:
+
+```json
+"center": 0
+```
+
+Если центр не нужен, используйте:
+
+```json
+"center": null
+```
+
+### `plot.global_color_scale`
+
+Одна общая шкала цвета для всех групп.
+
+Зачем нужно: значения на разных картинках можно честно сравнивать по цвету.
+
+Рекомендуется:
+
+```json
+"global_color_scale": true
+```
+
+### `plot.annotate`
+
+Показывать числа внутри ячеек.
+
+Зачем нужно: удобно для проверки и публикационных картинок, где нужно видеть точные значения.
+
+Пример:
+
+```json
+"annotate": true
+```
+
+### `plot.group_titles`
+
+Красивые заголовки для групп.
+
+Зачем нужно: можно сделать название на графике аккуратнее, чем техническое имя группы.
+
+Пример:
+
+```json
+"group_titles": {
+  "GdF3 / GdEuF3": "GdF3 / GdEuF3"
+}
+```
+
+### `plot.material_order`
+
+Ручной порядок строк для каждой группы.
+
+Зачем нужно: без этого строки сортируются автоматически. Для научной фигуры часто нужен осмысленный порядок, например от большей легировки к меньшей.
+
+Пример:
+
+```json
+"material_order": {
+  "GdF3 / GdEuF3": ["GdEu 20% F3", "GdEu 5% F3", "GdF3"]
+}
+```
+
+### `plot.output_names`
+
+Имена выходных PNG для каждой группы.
+
+Зачем нужно: можно сразу получить понятные имена файлов.
+
+Пример:
+
+```json
+"output_names": {
+  "BiCe": "lnDEF_heatmaps_BiCe_pH65_vs_74.png",
+  "GdF3 / GdEuF3": "lnDEF_heatmaps_GdF3_GdEuF3_pH65_vs_74.png"
+}
+```
+
+Если поле не указано, имя будет создано автоматически.
+
