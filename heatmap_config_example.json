@@ -1,0 +1,49 @@
+{
+  "sources": [
+    {
+      "path": "Protons BiCe GdEuF3 6_5.xlsx",
+      "format": "triplet_excel",
+      "ph": 6.5,
+      "include_families": ["BiCe"]
+    },
+    {
+      "path": "Protons BiCe GdEuF3 7_4.xlsx",
+      "format": "triplet_excel",
+      "ph": 7.4,
+      "include_families": ["BiCe"]
+    },
+    {
+      "path": "gdf3_gdeuf3_manual.csv",
+      "format": "wide_dose",
+      "family": "GdF3 / GdEuF3"
+    }
+  ],
+  "family_rules": [
+    {"contains": "BiCe", "family": "BiCe"},
+    {"contains": "GdEu", "family": "GdF3 / GdEuF3"},
+    {"contains": "GdF3", "family": "GdF3 / GdEuF3"}
+  ],
+  "default_family": "All samples",
+  "plot": {
+    "output_dir": "heatmap_outputs",
+    "value_label": "$\\ln(\\mathrm{DEF}_{\\mathrm{ROS}})$",
+    "colorbar_note": "blue: ROS decrease vs control; red: ROS increase vs control",
+    "dose_label": "Dose, Gy",
+    "concentration_label": "Conc, mg/mL",
+    "panel_label": "pH",
+    "cmap": "bwr",
+    "center": 0,
+    "global_color_scale": true,
+    "annotate": true,
+    "group_titles": {
+      "GdF3 / GdEuF3": "GdF3 / GdEuF3"
+    },
+    "material_order": {
+      "GdF3 / GdEuF3": ["GdEu 20% F3", "GdEu 5% F3", "GdF3"]
+    },
+    "output_names": {
+      "BiCe": "lnDEF_heatmaps_BiCe_pH65_vs_74.png",
+      "GdF3 / GdEuF3": "lnDEF_heatmaps_GdF3_GdEuF3_pH65_vs_74.png"
+    }
+  }
+}
