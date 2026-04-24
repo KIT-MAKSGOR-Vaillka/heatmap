@@ -1,7 +1,7 @@
 # Adaptable heatmap builder
 
 `heatmap.py` builds heatmaps for lnDEF-like experiment tables without editing Python code.
-It supports different doses, concentrations, sample names, cell lines, pH values and material families through a JSON config or the Colab notebook.
+It generates heatmaps from H2DCFDA-style analysis and supports different doses, concentrations, sample names, cell lines, pH values and material families through a JSON config or the Colab notebook.
 
 ## Quick start
 
@@ -81,4 +81,3 @@ For this format the config must provide `ph`, because each file usually represen
 - `plot.group_titles`: nice titles for plot groups.
 - `plot.material_order`: custom order for rows in each plot group.
 - `plot.panel_column`: default is `pH`; can be changed to `cell_line`, `condition` or another metadata column if the table contains it.
-
