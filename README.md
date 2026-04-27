@@ -53,6 +53,11 @@ python heatmap.py --write-example-config my_heatmap_config.json
 
 Для Excel используйте формат `triplet_excel`.
 
+В репозитории уже есть два подготовленных примера в этом формате:
+
+- `Protons BiCe GdEuF3 6_5_formatted.xlsx`
+- `Protons BiCe GdEuF3 7_4_formatted.xlsx`
+
 Ожидаемая структура:
 
 | Dose, Gy | BiCe 5% (0.005) | BiCe 5% (0.005) | BiCe 5% (0.005) | BiCe20% (0.025) | BiCe20% (0.025) | BiCe20% (0.025) |
@@ -184,7 +189,7 @@ pH для конкретного файла.
 Пример:
 
 ```json
-{"path": "Protons BiCe GdEuF3 6_5.xlsx", "format": "triplet_excel", "ph": 6.5}
+{"path": "Protons BiCe GdEuF3 6_5_formatted.xlsx", "format": "triplet_excel", "ph": 6.5}
 ```
 
 ### `sheet_name`
@@ -440,4 +445,3 @@ pH для конкретного файла.
 ```
 
 Если поле не указано, имя будет создано автоматически.
-

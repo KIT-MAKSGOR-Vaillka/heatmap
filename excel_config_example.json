@@ -1,12 +1,12 @@
 {
   "sources": [
     {
-      "path": "Protons BiCe GdEuF3 6_5.xlsx",
+      "path": "Protons BiCe GdEuF3 6_5_formatted.xlsx",
       "format": "triplet_excel",
       "ph": 6.5
     },
     {
-      "path": "Protons BiCe GdEuF3 7_4.xlsx",
+      "path": "Protons BiCe GdEuF3 7_4_formatted.xlsx",
       "format": "triplet_excel",
       "ph": 7.4
     }
