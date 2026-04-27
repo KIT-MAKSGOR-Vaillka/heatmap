@@ -7,7 +7,7 @@
 
 ## Быстрый запуск
 
-Запустить текущий пример GdF3/GdEuF3/BiCe:
+Запустить синтетический пример из папки `examples/`:
 
 ```bash
 python heatmap.py
@@ -40,14 +40,22 @@ python heatmap.py --write-example-config my_heatmap_config.json
 ## Как работать в Google Colab
 
 1. Откройте `heatmap_colab.ipynb` в Google Colab.
-2. Загрузите в Colab:
-   - `heatmap.py`
-   - ваши Excel/CSV файлы с экспериментами
-   - при необходимости `heatmap_config_example.json` или свой JSON-конфиг
-3. В блоке настроек выберите формат данных.
-4. Укажите имена файлов, pH, подписи осей и правила группировки.
-5. Запустите ячейку построения графиков.
-6. Скачайте PNG или ZIP с результатами.
+2. Первая ячейка автоматически скачает свежий `heatmap.py` из GitHub.
+3. Загрузите в Colab ваши Excel/CSV файлы с экспериментами.
+4. В блоке настроек выберите формат данных.
+5. Укажите имена файлов, pH, подписи осей и правила группировки.
+6. Запустите ячейку построения графиков.
+7. Скачайте PNG или ZIP с результатами.
+
+## Публичные примеры вместо реальных данных
+
+В публичном репозитории не хранятся реальные экспериментальные таблицы.
+Вместо них есть синтетические примеры для всех поддерживаемых входных форматов:
+
+- `examples/example_triplet_pH_6_5.xlsx` - Excel `triplet_excel`, pH 6.5.
+- `examples/example_triplet_pH_7_4.xlsx` - Excel `triplet_excel`, pH 7.4.
+- `examples/example_long.csv` - длинная таблица `long`.
+- `examples/example_wide_dose.csv` - широкая таблица `wide_dose`.
 
 ## Главный формат данных: Excel
 
@@ -55,23 +63,24 @@ python heatmap.py --write-example-config my_heatmap_config.json
 
 В репозитории уже есть два подготовленных примера в этом формате:
 
-- `Protons BiCe GdEuF3 6_5_formatted.xlsx`
-- `Protons BiCe GdEuF3 7_4_formatted.xlsx`
+- `examples/example_triplet_pH_6_5.xlsx`
+- `examples/example_triplet_pH_7_4.xlsx`
 
 Ожидаемая структура:
 
-| Dose, Gy | BiCe 5% (0.005) | BiCe 5% (0.005) | BiCe 5% (0.005) | BiCe20% (0.025) | BiCe20% (0.025) | BiCe20% (0.025) |
+| Dose, Gy | NanoA 5% (0.005) | NanoA 5% (0.005) | NanoA 5% (0.005) | NanoB (0.010) | NanoB (0.010) | NanoB (0.010) |
 | --- | --- | --- | --- | --- | --- | --- |
-| 3 | mean lnDEF | SD | N | mean lnDEF | SD | N |
-| 6 | mean lnDEF | SD | N | mean lnDEF | SD | N |
-| 9 | mean lnDEF | SD | N | mean lnDEF | SD | N |
+|  | mean lnDEF | SD | N | mean lnDEF | SD | N |
+| 3 | 0.22 | 0.04 | 3 | 0.10 | 0.03 | 3 |
+| 6 | 0.98 | 0.10 | 3 | -0.16 | 0.05 | 3 |
+| 9 | 0.16 | 0.06 | 3 | 0.27 | 0.04 | 3 |
 
 Правила:
 
 - Первый столбец - доза.
 - Дальше для каждого образца идут 3 столбца: `mean`, `SD`, `N`.
 - Скрипт берет только первый столбец из каждой тройки, то есть `mean`.
-- Концентрация должна быть в названии образца в скобках: `BiCe 5% (0.005)`.
+- Концентрация должна быть в названии образца в скобках: `NanoA 5% (0.005)`.
 - pH задается в конфиге отдельно, потому что обычно один Excel-файл соответствует одному pH.
 
 Минимальный Excel-конфиг:
@@ -80,20 +89,19 @@ python heatmap.py --write-example-config my_heatmap_config.json
 {
   "sources": [
     {
-      "path": "experiment_pH_6_5.xlsx",
+      "path": "examples/example_triplet_pH_6_5.xlsx",
       "format": "triplet_excel",
       "ph": 6.5
     },
     {
-      "path": "experiment_pH_7_4.xlsx",
+      "path": "examples/example_triplet_pH_7_4.xlsx",
       "format": "triplet_excel",
       "ph": 7.4
     }
   ],
   "family_rules": [
-    {"contains": "BiCe", "family": "BiCe"},
-    {"contains": "GdEu", "family": "GdF3 / GdEuF3"},
-    {"contains": "GdF3", "family": "GdF3 / GdEuF3"}
+    {"contains": "NanoA", "family": "NanoA"},
+    {"contains": "NanoB", "family": "NanoB"}
   ],
   "default_family": "Other",
   "plot": {
@@ -115,8 +123,8 @@ python heatmap.py --write-example-config my_heatmap_config.json
 
 ```csv
 Material,Family,pH,Conc_mg_mL,Dose_Gy,lnDEF
-GdF3,GdF3 / GdEuF3,6.5,0.01,3,0.18
-GdF3,GdF3 / GdEuF3,6.5,0.05,3,0.53
+NanoA 5%,NanoA,6.5,0.005,3,0.22
+NanoB,NanoB,6.5,0.010,3,0.10
 ```
 
 Формат в конфиге:
@@ -130,8 +138,9 @@ GdF3,GdF3 / GdEuF3,6.5,0.05,3,0.53
 Одна строка - материал, pH и концентрация; дозы записаны отдельными колонками:
 
 ```csv
-Material,pH,Conc_mg_mL,3_Gy,6_Gy,9_Gy
-GdF3,6.5,0.01,0.18,-0.22,-0.55
+Material,Family,pH,Conc_mg_mL,3_Gy,6_Gy,9_Gy
+NanoA 5%,NanoA,6.5,0.005,0.22,0.98,0.16
+NanoB,NanoB,6.5,0.010,0.10,-0.16,0.27
 ```
 
 Формат в конфиге:
@@ -189,7 +198,7 @@ pH для конкретного файла.
 Пример:
 
 ```json
-{"path": "Protons BiCe GdEuF3 6_5_formatted.xlsx", "format": "triplet_excel", "ph": 6.5}
+{"path": "examples/example_triplet_pH_6_5.xlsx", "format": "triplet_excel", "ph": 6.5}
 ```
 
 ### `sheet_name`
@@ -210,12 +219,12 @@ pH для конкретного файла.
 
 Принудительно задает группу для всех образцов из файла.
 
-Зачем нужно: удобно для ручных таблиц, где весь файл относится к одной группе, например `GdF3 / GdEuF3`.
+Зачем нужно: удобно для ручных таблиц, где весь файл относится к одной группе, например `NanoA`.
 
 Пример:
 
 ```json
-{"path": "gdf3_gdeuf3_manual.csv", "format": "wide_dose", "family": "GdF3 / GdEuF3"}
+{"path": "examples/example_wide_dose.csv", "format": "wide_dose", "family": "NanoA"}
 ```
 
 ### `include_families`
@@ -224,10 +233,10 @@ pH для конкретного файла.
 
 Зачем нужно: если Excel содержит несколько семейств образцов, но из этого файла нужно взять только часть.
 
-В текущем примере Excel содержит и BiCe, и GdEu, но Gd/GdEu берутся из ручной CSV. Поэтому Excel-источники ограничены так:
+Если Excel содержит несколько семейств образцов, но из конкретного файла нужно взять только одно, ограничьте источник так:
 
 ```json
-"include_families": ["BiCe"]
+"include_families": ["NanoA"]
 ```
 
 ### `exclude_families`
@@ -246,15 +255,14 @@ pH для конкретного файла.
 
 Правила, которые раскладывают образцы по группам на основании названия.
 
-Зачем нужно: отдельная картинка строится для каждой группы. Например, все образцы с `BiCe` попадают в группу `BiCe`.
+Зачем нужно: отдельная картинка строится для каждой группы. Например, все образцы с `NanoA` попадают в группу `NanoA`.
 
 Пример:
 
 ```json
 "family_rules": [
-  {"contains": "BiCe", "family": "BiCe"},
-  {"contains": "GdEu", "family": "GdF3 / GdEuF3"},
-  {"contains": "GdF3", "family": "GdF3 / GdEuF3"}
+  {"contains": "NanoA", "family": "NanoA"},
+  {"contains": "NanoB", "family": "NanoB"}
 ]
 ```
 
@@ -411,7 +419,8 @@ pH для конкретного файла.
 
 ```json
 "group_titles": {
-  "GdF3 / GdEuF3": "GdF3 / GdEuF3"
+  "NanoA": "NanoA",
+  "NanoB": "NanoB"
 }
 ```
 
@@ -425,7 +434,8 @@ pH для конкретного файла.
 
 ```json
 "material_order": {
-  "GdF3 / GdEuF3": ["GdEu 20% F3", "GdEu 5% F3", "GdF3"]
+  "NanoA": ["NanoA 5%"],
+  "NanoB": ["NanoB"]
 }
 ```
 
@@ -439,8 +449,8 @@ pH для конкретного файла.
 
 ```json
 "output_names": {
-  "BiCe": "lnDEF_heatmaps_BiCe_pH65_vs_74.png",
-  "GdF3 / GdEuF3": "lnDEF_heatmaps_GdF3_GdEuF3_pH65_vs_74.png"
+  "NanoA": "example_heatmap_NanoA.png",
+  "NanoB": "example_heatmap_NanoB.png"
 }
 ```
 

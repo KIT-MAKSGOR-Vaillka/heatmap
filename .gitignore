@@ -7,3 +7,12 @@ venv/
 heatmap_outputs/
 heatmap_test_outputs/
 *.png
+
+# Real experiment data should stay local and should not be committed.
+Protons BiCe GdEuF3*.xlsx
+gdf3_gdeuf3_manual.csv
+*_formatted.xlsx
+
+# Keep synthetic public examples.
+!examples/
+!examples/**

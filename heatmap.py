@@ -22,27 +22,19 @@ SUB3 = "3"
 DEFAULT_CONFIG: dict[str, Any] = {
     "sources": [
         {
-            "path": "Protons BiCe GdEuF3 6_5.xlsx",
+            "path": "examples/example_triplet_pH_6_5.xlsx",
             "format": "triplet_excel",
             "ph": 6.5,
-            "include_families": ["BiCe"],
         },
         {
-            "path": "Protons BiCe GdEuF3 7_4.xlsx",
+            "path": "examples/example_triplet_pH_7_4.xlsx",
             "format": "triplet_excel",
             "ph": 7.4,
-            "include_families": ["BiCe"],
-        },
-        {
-            "path": "gdf3_gdeuf3_manual.csv",
-            "format": "wide_dose",
-            "family": "GdF3 / GdEuF3",
         },
     ],
     "family_rules": [
-        {"contains": "BiCe", "family": "BiCe"},
-        {"contains": "GdEu", "family": "GdF3 / GdEuF3"},
-        {"contains": "GdF3", "family": "GdF3 / GdEuF3"},
+        {"contains": "NanoA", "family": "NanoA"},
+        {"contains": "NanoB", "family": "NanoB"},
     ],
     "default_family": "All samples",
     "plot": {
@@ -58,17 +50,16 @@ DEFAULT_CONFIG: dict[str, Any] = {
         "panel_label": "pH",
         "dpi": 300,
         "group_titles": {
-            "GdF3 / GdEuF3": "GdF3 / GdEuF3",
+            "NanoA": "NanoA",
+            "NanoB": "NanoB",
         },
         "material_order": {
-            "GdF3 / GdEuF3": ["GdEu 20% F3", "GdEu 5% F3", "GdF3"],
+            "NanoA": ["NanoA 5%"],
+            "NanoB": ["NanoB"],
         },
         "output_names": {
-            "BiCe": "lnDEF_heatmaps_BiCe_pH65_vs_74.png",
-            "GdF3 / GdEuF3": [
-                "lnDEF_heatmaps_GdF3_GdEuF3_pH65_vs_74.png",
-                "lnDEF_heatmaps_Xray_GdF3_GdEuF3_pH65_vs_74_title_only_clean.png",
-            ],
+            "NanoA": "example_heatmap_NanoA.png",
+            "NanoB": "example_heatmap_NanoB.png",
         },
     },
 }

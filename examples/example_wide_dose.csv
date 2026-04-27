@@ -1,0 +1,7 @@
+Material,Family,pH,Conc_mg_mL,3_Gy,6_Gy,9_Gy
+NanoA 5%,NanoA,6.5,0.005,0.22,0.98,0.16
+NanoA 5%,NanoA,6.5,0.025,0.60,1.38,0.96
+NanoB,NanoB,6.5,0.010,0.10,-0.16,0.27
+NanoA 5%,NanoA,7.4,0.005,0.37,1.13,0.31
+NanoA 5%,NanoA,7.4,0.025,0.75,1.53,1.11
+NanoB,NanoB,7.4,0.010,0.25,-0.01,0.42

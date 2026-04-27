@@ -1,0 +1,19 @@
+Material,Family,pH,Conc_mg_mL,Dose_Gy,lnDEF
+NanoA 5%,NanoA,6.5,0.005,3,0.22
+NanoA 5%,NanoA,6.5,0.005,6,0.98
+NanoA 5%,NanoA,6.5,0.005,9,0.16
+NanoA 5%,NanoA,6.5,0.025,3,0.60
+NanoA 5%,NanoA,6.5,0.025,6,1.38
+NanoA 5%,NanoA,6.5,0.025,9,0.96
+NanoB,NanoB,6.5,0.010,3,0.10
+NanoB,NanoB,6.5,0.010,6,-0.16
+NanoB,NanoB,6.5,0.010,9,0.27
+NanoA 5%,NanoA,7.4,0.005,3,0.37
+NanoA 5%,NanoA,7.4,0.005,6,1.13
+NanoA 5%,NanoA,7.4,0.005,9,0.31
+NanoA 5%,NanoA,7.4,0.025,3,0.75
+NanoA 5%,NanoA,7.4,0.025,6,1.53
+NanoA 5%,NanoA,7.4,0.025,9,1.11
+NanoB,NanoB,7.4,0.010,3,0.25
+NanoB,NanoB,7.4,0.010,6,-0.01
+NanoB,NanoB,7.4,0.010,9,0.42
